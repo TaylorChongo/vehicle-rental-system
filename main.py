@@ -1,6 +1,7 @@
 """Entry point for the vehicle rental system."""
 
 import logging
+from pathlib import Path
 
 from rental_service import RentalService
 from vehicles.bike import Bike
@@ -15,7 +16,8 @@ def create_default_service() -> RentalService:
             Car("CAR-001", 45.0),
             Truck("TRUCK-001", 75.0),
             Bike("BIKE-001", 20.0),
-        )
+        ),
+        storage_path=Path(__file__).parent / "data" / "fleet.json",
     )
 
 

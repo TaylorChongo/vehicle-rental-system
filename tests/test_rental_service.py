@@ -7,8 +7,11 @@ from vehicles.bike import Bike
 from vehicles.car import Car
 
 
-def make_service() -> RentalService:
-    return RentalService((Car("CAR-001", 45.0), Bike("BIKE-001", 20.0)))
+def make_service(storage_path: str | None = None) -> RentalService:
+    return RentalService(
+        (Car("CAR-001", 45.0), Bike("BIKE-001", 20.0)),
+        storage_path=storage_path,
+    )
 
 
 def test_list_vehicles_returns_all_vehicles_in_identifier_order() -> None:
@@ -102,3 +105,24 @@ def test_invalid_action_is_logged(caplog: pytest.LogCaptureFixture) -> None:
         service.rent_vehicle("UNKNOWN")
 
     assert "Vehicle lookup failed: 'UNKNOWN' was not found." in caplog.text
+
+
+def test_fleet_state_is_loaded_after_service_restart(tmp_path) -> None:
+    storage_path = str(tmp_path / "fleet.json")
+    first_service = make_service(storage_path)
+
+    first_service.rent_vehicle("CAR-001")
+    restarted_service = RentalService(storage_path=storage_path)
+
+    assert restarted_service.list_vehicles()[1].is_available is False
+
+
+def test_returned_state_is_saved_for_next_restart(tmp_path) -> None:
+    storage_path = str(tmp_path / "fleet.json")
+    service = make_service(storage_path)
+    service.rent_vehicle("CAR-001")
+    service.return_vehicle("CAR-001")
+
+    restarted_service = RentalService(storage_path=storage_path)
+
+    assert restarted_service.list_vehicles()[1].is_available is True

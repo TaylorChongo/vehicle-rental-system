@@ -22,6 +22,12 @@ positive whole-number rental duration. Invalid durations are rejected.
 Delivered. Successful rentals and returns are logged at INFO level. Unknown
 vehicles and invalid rental actions are logged at WARNING level.
 
+### Persistent fleet state
+
+Delivered as a Sprint 2 improvement. The fleet and availability state are
+stored in `data/fleet.json`, so rental and return changes survive application
+restarts.
+
 ## Demonstration
 
 Run:
@@ -38,11 +44,12 @@ The demonstrated flow is:
 4. Select `3` and return `CAR-001`.
 5. Select `1` to confirm that `CAR-001` is available again.
 6. Select `5` to exit.
+7. Run `poetry run python main.py` again to confirm the saved state is restored.
 
 ## Testing and DevOps evidence
 
-- The test suite now contains 14 tests covering the full rental lifecycle,
-  cost validation, and logging.
+- The test suite now contains 16 tests covering the full rental lifecycle,
+  cost validation, logging, and persistence across service restarts.
 - `poetry run pytest -q` passes.
 - The CI workflow continues to run the complete test suite on pushes and pull
   requests.
