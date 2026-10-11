@@ -49,3 +49,56 @@ def test_duplicate_vehicle_ids_are_rejected() -> None:
 
     with pytest.raises(ValueError, match="already exists"):
         service.add_vehicle(Car("CAR-001", 50.0))
+
+
+def test_return_vehicle_marks_vehicle_as_available() -> None:
+    service = make_service()
+    service.rent_vehicle("CAR-001")
+
+    returned_vehicle = service.return_vehicle("CAR-001")
+
+    assert returned_vehicle.vehicle_id == "CAR-001"
+    assert returned_vehicle.is_available is True
+
+
+def test_returning_an_available_vehicle_fails() -> None:
+    service = make_service()
+
+    with pytest.raises(ValueError, match="already available"):
+        service.return_vehicle("CAR-001")
+
+
+def test_calculate_cost_uses_daily_rate_and_rental_days() -> None:
+    service = make_service()
+
+    cost = service.calculate_cost("CAR-001", 3)
+
+    assert cost == 135.0
+
+
+@pytest.mark.parametrize("rental_days", [0, -1, True, 1.5])
+def test_calculate_cost_requires_positive_whole_days(rental_days: object) -> None:
+    service = make_service()
+
+    with pytest.raises(ValueError, match="positive whole number"):
+        service.calculate_cost("CAR-001", rental_days)  # type: ignore[arg-type]
+
+
+def test_successful_actions_are_logged(caplog: pytest.LogCaptureFixture) -> None:
+    service = make_service()
+
+    with caplog.at_level("INFO"):
+        service.rent_vehicle("CAR-001")
+        service.return_vehicle("CAR-001")
+
+    assert "Vehicle 'CAR-001' rented successfully." in caplog.text
+    assert "Vehicle 'CAR-001' returned successfully." in caplog.text
+
+
+def test_invalid_action_is_logged(caplog: pytest.LogCaptureFixture) -> None:
+    service = make_service()
+
+    with caplog.at_level("WARNING"), pytest.raises(ValueError):
+        service.rent_vehicle("UNKNOWN")
+
+    assert "Vehicle lookup failed: 'UNKNOWN' was not found." in caplog.text

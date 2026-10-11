@@ -1,5 +1,7 @@
 """Entry point for the vehicle rental system."""
 
+import logging
+
 from rental_service import RentalService
 from vehicles.bike import Bike
 from vehicles.car import Car
@@ -38,7 +40,9 @@ def run_cli(service: RentalService) -> None:
         print("\nVehicle Rental System")
         print("1. View vehicles")
         print("2. Rent a vehicle")
-        print("3. Exit")
+        print("3. Return a vehicle")
+        print("4. Calculate rental cost")
+        print("5. Exit")
 
         choice = input("Choose an option: ").strip()
         if choice == "1":
@@ -52,14 +56,33 @@ def run_cli(service: RentalService) -> None:
             else:
                 print(f"{vehicle.vehicle_id} has been rented successfully.")
         elif choice == "3":
+            vehicle_id = input("Enter vehicle ID: ").strip()
+            try:
+                vehicle = service.return_vehicle(vehicle_id)
+            except ValueError as error:
+                print(f"Error: {error}")
+            else:
+                print(f"{vehicle.vehicle_id} has been returned successfully.")
+        elif choice == "4":
+            vehicle_id = input("Enter vehicle ID: ").strip()
+            days_text = input("Enter rental days: ").strip()
+            try:
+                rental_days = int(days_text)
+                cost = service.calculate_cost(vehicle_id, rental_days)
+            except ValueError as error:
+                print(f"Error: {error}")
+            else:
+                print(f"Rental cost: ${cost:.2f}")
+        elif choice == "5":
             print("Goodbye!")
             return
         else:
-            print("Invalid option. Please choose 1, 2, or 3.")
+            print("Invalid option. Please choose 1, 2, 3, 4, or 5.")
 
 
 def main() -> None:
     """Run the vehicle rental system."""
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     run_cli(create_default_service())
 
 

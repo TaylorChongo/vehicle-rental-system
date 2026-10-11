@@ -95,9 +95,22 @@ Deliver the first usable CLI flow for viewing vehicles and renting an available 
 
 ## Sprint 2 plan
 
-Sprint 2 will be finalized after the Sprint 1 retrospective. The initial candidates are:
+### Sprint goal
+
+Complete the rental lifecycle, show rental costs, and make important application
+events observable through logs.
+
+### Selected stories
 
 - US-03: Return a vehicle — 3 points
 - US-04: Calculate rental cost — 5 points
 - US-06: Add logging — 2 points
 
+### Sprint 2 work sequence
+
+1. Add return and rental-cost rules to `RentalService`.
+2. Add CLI commands for returning vehicles and calculating costs.
+3. Add INFO and WARNING logs for successful and invalid operations.
+4. Add unit tests for the new rules and logging behavior.
+5. Run the complete test suite through Poetry and CI.
+6. Record the sprint review and retrospective.
